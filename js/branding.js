@@ -11,6 +11,16 @@
     return img;
   }
 
+  function hasSidebarLayout() {
+    return Boolean(
+      document.querySelector(".sidebar, #sidebar, .sidebar-brand, .sidebar-header, #sidebar-container, aside.sidebar")
+    );
+  }
+
+  function syncSidebarClass() {
+    document.body.classList.toggle("has-kusk-sidebar", hasSidebarLayout());
+  }
+
   function convertMark(mark) {
     if (!mark || mark.dataset.kuskLogoReady === "true") return;
     mark.dataset.kuskLogoReady = "true";
@@ -40,12 +50,22 @@
     logo.appendChild(span);
   }
 
+  function removeDuplicatePageLogos() {
+    if (!hasSidebarLayout()) return;
+
+    document.querySelectorAll(".main-content .kusk-page-logo, .content .kusk-page-logo, main .kusk-page-logo").forEach(logo => {
+      logo.remove();
+    });
+  }
+
   function ensurePageLogo() {
-    if (document.querySelector(".kusk-page-logo, .brand-mark, .manual-logo, img.logo, img.login-logo, .sidebar-logo img, .sidebar .logo img")) {
+    if (hasSidebarLayout()) return;
+
+    if (document.querySelector(".kusk-page-logo, .brand-mark, .manual-logo, img.logo, img.login-logo, .sidebar-logo img, .sidebar .logo img, .sidebar-header img")) {
       return;
     }
 
-    const heading = document.querySelector("main h1, .login-card h1, .login-card h2, body > h1");
+    const heading = document.querySelector("main h1, .login-card h1, .login-card h2, .login-box h1, .login-box h2, body > h1");
     if (!heading || heading.dataset.kuskPageLogoInserted === "true") return;
 
     heading.dataset.kuskPageLogoInserted = "true";
@@ -68,6 +88,7 @@
       document.querySelector(".content") ||
       document.querySelector(".login-card") ||
       document.querySelector(".login-panel") ||
+      document.querySelector(".login-box") ||
       document.querySelector("main") ||
       document.body;
 
@@ -78,8 +99,10 @@
 
   function applyBranding() {
     document.body.classList.add("has-kusk-branding");
+    syncSidebarClass();
+    removeDuplicatePageLogos();
     document.querySelectorAll(".brand-mark, .manual-logo").forEach(convertMark);
-    document.querySelectorAll("img.logo, img.login-logo, .sidebar-logo img, img[src$='logo.png'], img[src*='assets/logo/logo.png']").forEach(normalizeImageLogo);
+    document.querySelectorAll("img.logo, img.login-logo, .sidebar-logo img, .sidebar-header img, img[src$='logo.png'], img[src*='assets/logo/logo.png']").forEach(normalizeImageLogo);
     document.querySelectorAll(".sidebar .logo").forEach(normalizeSidebarLogo);
     ensurePageLogo();
     ensureCredit();

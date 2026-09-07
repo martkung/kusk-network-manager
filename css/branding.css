@@ -8,12 +8,21 @@
 }
 
 .brand-mark.kusk-logo-mark,
-.manual-logo.kusk-logo-mark {
+.manual-logo.kusk-logo-mark,
+.kusk-page-logo,
+img.logo,
+img.login-logo,
+.sidebar-header img[src*="logo"] {
   overflow: hidden;
-  padding: 5px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: #ffffff !important;
+  padding: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.16) !important;
   color: transparent !important;
+  box-shadow:
+    0 14px 32px rgba(15, 23, 42, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(10px);
 }
 
 .kusk-page-logo {
@@ -21,12 +30,16 @@
   width: 64px;
   height: 64px;
   margin: 0 auto 18px;
-  padding: 7px;
   place-items: center;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+img.logo,
+img.login-logo {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 12px;
+  object-fit: contain;
 }
 
 .logo.kusk-sidebar-logo {
@@ -39,13 +52,19 @@
   line-height: 1.25;
 }
 
-.logo.kusk-sidebar-logo img {
-  flex: 0 0 48px;
+.logo.kusk-sidebar-logo img,
+.sidebar-header img[src*="logo"] {
+  flex: 0 0 auto;
   width: 48px;
   height: 48px;
   padding: 5px;
-  border-radius: 8px;
-  background: #ffffff;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.sidebar-header img[src*="logo"] {
+  display: block;
+  margin: 0 auto 10px;
 }
 
 .logo.kusk-sidebar-logo span,
@@ -56,6 +75,12 @@
   font-size: 22px;
   font-weight: 800;
   overflow-wrap: anywhere;
+}
+
+body.has-kusk-sidebar .main-content .kusk-page-logo,
+body.has-kusk-sidebar .content .kusk-page-logo,
+body.has-kusk-sidebar main .kusk-page-logo {
+  display: none !important;
 }
 
 .developer-credit {
@@ -73,12 +98,14 @@
 .content > .developer-credit,
 .container > .developer-credit,
 .login-card > .developer-credit,
-.login-panel > .developer-credit {
+.login-panel > .developer-credit,
+.login-box > .developer-credit {
   width: 100%;
 }
 
 .login-card > .developer-credit,
-.login-panel > .developer-credit {
+.login-panel > .developer-credit,
+.login-box > .developer-credit {
   margin-top: 18px;
   margin-bottom: 0;
   color: rgba(100, 116, 139, 0.9);
@@ -90,9 +117,13 @@
     font-size: 10.5px;
   }
 
-  .kusk-page-logo {
+  .kusk-page-logo,
+  img.logo,
+  img.login-logo {
     width: 56px;
     height: 56px;
+    padding: 6px;
+    border-radius: 12px;
   }
 }
 
