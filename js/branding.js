@@ -39,6 +39,13 @@
 
   function normalizeSidebarLogo(logo) {
     if (!logo || logo.dataset.kuskLogoReady === "true") return;
+    if (logo.classList.contains("kusk-standard-brand")) {
+      logo.dataset.kuskLogoReady = "true";
+      logo.classList.add("kusk-sidebar-logo");
+      const image = logo.querySelector("img");
+      if (image) normalizeImageLogo(image);
+      return;
+    }
     const label = (logo.textContent || "").trim() || "KUSK";
     logo.dataset.kuskLogoReady = "true";
     logo.classList.add("kusk-sidebar-logo");
