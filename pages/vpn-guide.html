@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>คู่มือ VPN มหาวิทยาลัยเกษตรศาสตร์</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:#0f172a;
+    color:white;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:30px;
+}
+
+.hero{
+    background:linear-gradient(135deg,#2563eb,#1e40af);
+    padding:40px;
+    border-radius:15px;
+    margin-bottom:30px;
+}
+
+.hero h1{
+    margin:0;
+    font-size:36px;
+}
+
+.hero p{
+    margin-top:15px;
+    font-size:18px;
+    line-height:1.8;
+}
+
+.btn{
+    display:inline-block;
+    margin-top:20px;
+    background:#22c55e;
+    color:white;
+    padding:14px 24px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.card{
+    background:#1e293b;
+    border-radius:15px;
+    padding:25px;
+    margin-bottom:25px;
+}
+
+.card h2{
+    margin-top:0;
+    color:#60a5fa;
+}
+
+.step{
+    background:#111827;
+    padding:20px;
+    border-radius:10px;
+    margin-top:15px;
+}
+
+.step h3{
+    color:#22c55e;
+}
+
+.warning{
+    background:#7c2d12;
+    padding:20px;
+    border-radius:10px;
+}
+
+.footer{
+    text-align:center;
+    margin-top:30px;
+}
+
+</style>
+
+<link rel="stylesheet" href="../css/style.css">
+
+  <link rel="stylesheet" href="/css/branding.css">
+</head>
+<body>
+
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">    
+
+<div class="container">
+
+<div class="hero">
+
+<h1>🔐 คู่มือการเชื่อมต่อ VPN มหาวิทยาลัยเกษตรศาสตร์</h1>
+
+<p>
+
+ระบบ Network Manager ของโรงเรียนสาธิตแห่งมหาวิทยาลัยเกษตรศาสตร์
+จำเป็นต้องเข้าถึงอุปกรณ์ผ่านเครือข่ายภายในมหาวิทยาลัย
+
+ดังนั้นผู้ดูแลระบบที่ทำงานจากภายนอกมหาวิทยาลัย
+จะต้องเชื่อมต่อ VPN ก่อนทุกครั้ง
+
+</p>
+
+<a href="https://vpn.ku.ac.th/index.php"
+target="_blank"
+class="btn">
+
+เข้าสู่ระบบ VPN KU
+
+</a>
+
+</div>
+
+<div class="card">
+
+<h2>🌐 VPN คืออะไร ?</h2>
+
+<p>
+
+VPN (Virtual Private Network)
+
+เป็นระบบที่ช่วยให้คอมพิวเตอร์ของท่าน
+เชื่อมต่อเข้าสู่เครือข่ายมหาวิทยาลัยเกษตรศาสตร์
+เสมือนอยู่ภายในมหาวิทยาลัย
+
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>📌 เหตุผลที่ต้องใช้ VPN</h2>
+
+<ul>
+
+<li>เข้าถึง Switch ภายในมหาวิทยาลัย</li>
+
+<li>เข้าถึง Access Point</li>
+
+<li>เข้าถึง Controller</li>
+
+<li>เข้าถึง Web Config ของอุปกรณ์</li>
+
+<li>บริหารจัดการระบบจากภายนอกมหาวิทยาลัย</li>
+
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>🚀 ขั้นตอนการใช้งาน</h2>
+
+<div class="step">
+
+<h3>STEP 1 สมัคร VPN</h3>
+
+<p>
+
+เข้าสู่เว็บไซต์ VPN ของมหาวิทยาลัย
+และ Login ด้วย KU Account
+
+</p>
+
+</div>
+
+<div class="step">
+
+<h3>STEP 2 ดาวน์โหลดโปรแกรม</h3>
+
+<p>
+
+ดาวน์โหลดและติดตั้งโปรแกรม VPN
+ตามระบบปฏิบัติการที่ใช้งาน
+
+</p>
+
+</div>
+
+<div class="step">
+
+<h3>STEP 3 เชื่อมต่อ VPN</h3>
+
+<p>
+
+เปิดโปรแกรม VPN
+
+Login ด้วย KU Account
+
+และกด Connect
+
+</p>
+
+</div>
+
+<div class="step">
+
+<h3>STEP 4 เปิดใช้งาน Network Manager</h3>
+
+<p>
+
+เมื่อเชื่อมต่อสำเร็จแล้ว
+
+จึงสามารถกด
+
+Open Web Config
+
+เพื่อเข้าถึง Switch ได้
+
+</p>
+
+</div>
+
+</div>
+
+<div class="card warning">
+
+<h2>⚠️ หากเปิด Switch ไม่ได้</h2>
+
+<ul>
+
+<li>ตรวจสอบว่า VPN Connected แล้ว</li>
+
+<li>ตรวจสอบ KU Account</li>
+
+<li>ตรวจสอบว่าอุปกรณ์ออนไลน์อยู่</li>
+
+<li>ลอง Ping IP ของอุปกรณ์</li>
+
+</ul>
+
+</div>
+
+<div class="footer">
+
+<a href="https://vpn.ku.ac.th/index.php"
+target="_blank"
+class="btn">
+
+🔐 ไปยังระบบ VPN มหาวิทยาลัยเกษตรศาสตร์
+
+</a>
+
+</div>
+
+</div>
+</div>
+<script type="module" src="../js/sidebar.js"></script>
+
+  <script src="/js/branding.js" defer></script>
+</body>
+</html>

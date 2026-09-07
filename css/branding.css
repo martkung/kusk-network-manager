@@ -1,0 +1,103 @@
+.kusk-brand-logo-img,
+.kusk-page-logo img,
+.kusk-sidebar-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brand-mark.kusk-logo-mark,
+.manual-logo.kusk-logo-mark {
+  overflow: hidden;
+  padding: 5px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: #ffffff !important;
+  color: transparent !important;
+}
+
+.kusk-page-logo {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  padding: 7px;
+  place-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.logo.kusk-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  margin-bottom: 28px;
+  color: inherit;
+  line-height: 1.25;
+}
+
+.logo.kusk-sidebar-logo img {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  padding: 5px;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.logo.kusk-sidebar-logo span,
+.kusk-sidebar-logo-text {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  font-size: 22px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.developer-credit {
+  width: min(100%, 1180px);
+  margin: 24px auto 12px;
+  padding: 0 16px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.main-content > .developer-credit,
+.content > .developer-credit,
+.container > .developer-credit,
+.login-card > .developer-credit,
+.login-panel > .developer-credit {
+  width: 100%;
+}
+
+.login-card > .developer-credit,
+.login-panel > .developer-credit {
+  margin-top: 18px;
+  margin-bottom: 0;
+  color: rgba(100, 116, 139, 0.9);
+}
+
+@media (max-width: 700px) {
+  .developer-credit {
+    margin-top: 18px;
+    font-size: 10.5px;
+  }
+
+  .kusk-page-logo {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media print {
+  .developer-credit {
+    color: #444;
+  }
+}

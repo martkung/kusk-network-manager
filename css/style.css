@@ -1,0 +1,840 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+
+    --bg:#0b1220;
+    --sidebar:#111827;
+    --card:#1e293b;
+    --card-hover:#273549;
+
+    --text:#ffffff;
+    --text-soft:#94a3b8;
+
+    --border:#374151;
+
+    --success:#16a34a;
+    --danger:#dc2626;
+    --warning:#f59e0b;
+    --primary:#2563eb;
+
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Segoe UI,Tahoma,sans-serif;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+
+    width:250px;
+    height:100vh;
+
+    background:var(--sidebar);
+
+    position:fixed;
+    left:0;
+    top:0;
+
+    padding:25px;
+
+    border-right:1px solid #1f2937;
+
+    z-index:1000;
+}
+
+.logo{
+
+    font-size:26px;
+    font-weight:700;
+
+    color:#60a5fa;
+
+    margin-bottom:35px;
+}
+
+.sidebar a{
+
+    display:flex;
+    align-items:center;
+
+    gap:10px;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:12px 15px;
+
+    border-radius:12px;
+
+    margin-bottom:8px;
+
+    transition:.25s;
+}
+
+.sidebar a:hover{
+
+    background:#1f2937;
+
+    transform:translateX(4px);
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.main-content{
+
+    margin-left:250px;
+
+    padding:30px;
+}
+
+.page-title{
+
+    font-size:28px;
+    font-weight:700;
+
+    margin-bottom:30px;
+}
+
+/* =========================
+   DASHBOARD CARD
+========================= */
+
+.dashboard-card{
+
+    background:var(--card);
+
+    border:none;
+
+    border-radius:18px;
+
+    color:white;
+
+    transition:.25s;
+
+    box-shadow:
+    0 4px 20px rgba(0,0,0,.25);
+}
+
+.dashboard-card:hover{
+
+    transform:translateY(-4px);
+
+    background:
+    var(--card-hover);
+}
+
+.card-title-small{
+
+    color:var(--text-soft);
+
+    font-size:14px;
+}
+
+.card-number{
+
+    font-size:42px;
+
+    font-weight:700;
+
+    margin-top:10px;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-container{
+
+    background:var(--card);
+
+    border-radius:18px;
+
+    padding:20px;
+
+    overflow:hidden;
+
+    box-shadow:
+    0 4px 20px rgba(0,0,0,.25);
+}
+
+.table{
+
+    color:white;
+
+    margin-bottom:0;
+
+    border-collapse:collapse;
+}
+
+/* Header */
+
+.table thead th{
+
+    background:#1f2937;
+
+    color:white;
+
+    border-color:var(--border);
+
+    padding:15px;
+
+    font-weight:600;
+}
+
+/* Body */
+
+.table tbody td{
+
+    background:#111827;
+
+    color:white;
+
+    border-color:var(--border);
+
+    padding:14px;
+
+    vertical-align:middle;
+}
+
+/* =========================
+   TABLE HOVER EFFECT
+========================= */
+
+.table tbody tr{
+
+    transition:
+    background .2s ease,
+    box-shadow .2s ease;
+}
+
+/* =========================
+   TABLE HOVER EFFECT
+========================= */
+
+.table tbody tr{
+
+    transition:
+    all .2s ease;
+}
+
+/* Hover สีเขียวอ่อน */
+
+.table tbody tr:hover td{
+
+    background:#d8e5de !important;
+
+    color:#1f2937 !important;
+}
+
+/* เส้น Accent ด้านซ้าย */
+
+.table tbody tr:hover{
+
+    box-shadow:
+    inset 4px 0 0 #16a34a;
+}
+
+/* Blue Accent Line */
+
+.table tbody tr:hover{
+
+    box-shadow:
+    inset 4px 0 0 #2563eb;
+}
+
+/* Bootstrap Override */
+
+.table-success,
+.table-warning,
+.table-info,
+.table-light,
+.table-secondary{
+
+    background:#111827 !important;
+
+    color:#ffffff !important;
+}
+
+.table-success td,
+.table-warning td,
+.table-info td,
+.table-light td,
+.table-secondary td{
+
+    background:#111827 !important;
+
+    color:#ffffff !important;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status-online{
+
+    display:inline-block;
+
+    background:var(--success);
+
+    color:white;
+
+    padding:4px 10px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+}
+
+.status-offline{
+
+    display:inline-block;
+
+    background:var(--danger);
+
+    color:white;
+
+    padding:4px 10px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn{
+
+    border:none;
+
+    border-radius:10px;
+
+    font-weight:500;
+}
+
+.btn-primary{
+
+    background:var(--primary);
+}
+
+.btn-success{
+
+    background:var(--success);
+}
+
+.btn-warning{
+
+    background:var(--warning);
+
+    color:#000;
+}
+
+.btn-danger{
+
+    background:var(--danger);
+}
+
+/* =========================
+   MOBILE BUTTON
+========================= */
+
+.menu-btn{
+
+    display:none;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:768px){
+
+    body{
+        overflow-x:hidden;
+    }
+
+    .menu-btn{
+
+        display:block;
+
+        position:fixed;
+
+        top:15px;
+        left:15px;
+
+        z-index:2000;
+
+        background:var(--primary);
+
+        color:white;
+
+        border:none;
+
+        border-radius:10px;
+
+        padding:10px 15px;
+
+        font-size:22px;
+
+        cursor:pointer;
+    }
+
+    .sidebar{
+
+        left:-260px;
+
+        transition:.3s;
+    }
+
+    .sidebar.show{
+
+        left:0;
+    }
+
+    .main-content{
+
+        margin-left:0;
+
+        width:100%;
+
+        padding:
+        70px 15px 15px;
+    }
+
+    .card-number{
+
+        font-size:28px;
+    }
+
+    .home-grid{
+
+        grid-template-columns:1fr;
+
+        gap:15px;
+    }
+
+    .home-card{
+
+        padding:25px;
+    }
+
+    .home-title{
+
+        font-size:22px;
+    }
+
+    .home-count{
+
+        font-size:32px;
+    }
+
+    .table-container{
+
+        overflow-x:auto;
+    }
+
+    .table{
+
+        min-width:900px;
+
+        font-size:14px;
+    }
+
+    .btn{
+
+        min-height:44px;
+    }
+
+    .page-title{
+
+        font-size:24px;
+    }
+
+    .d-flex{
+
+        flex-direction:column;
+
+        align-items:stretch !important;
+
+        gap:10px;
+    }
+
+    img{
+
+        max-width:100%;
+
+        height:auto;
+    }
+    
+
+
+}
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.btn-success,
+.btn-warning,
+.btn-danger{
+
+    
+    border:none;
+
+    border-radius:8px;
+
+    font-weight:600;
+
+    transition:
+    transform .2s ease,
+    opacity .2s ease;
+}
+
+.btn-success:hover,
+.btn-warning:hover,
+.btn-danger:hover{
+
+    transform:translateY(-1px);
+
+    opacity:.95;
+}
+.location-image-box{
+    margin-bottom: 20px;
+}
+
+.location-image{
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 2px solid #2f4368;
+    background: #0f172a;
+}
+.location-image{
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 2px solid #2f4368;
+    background: #0f172a;
+}
+
+.location-image-box h5{
+    margin-bottom: 16px;
+}
+.device-info-layout {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.device-info-left {
+  flex: 1;
+  min-width: 300px;
+}
+
+.device-info-right {
+  width: 420px;
+}
+
+.location-image-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.location-image-box {
+
+  width: 100%;
+  height: 320px;
+
+  background: #1e293b;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  border: 2px solid #334155;
+
+  margin-bottom: 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.location-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.upload-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.upload-btn:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 1100px) {
+  .device-info-layout {
+    flex-direction: column;
+  }
+
+  .device-info-right {
+    width: 100%;
+  }
+}
+/* =========================
+   DEVICE DETAIL
+========================= */
+
+.device-info-layout {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.device-info-left {
+  flex: 1;
+  min-width: 300px;
+}
+
+.device-info-right {
+  width: 420px;
+}
+
+.location-image-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.location-image-box {
+  width: 100%;
+  height: 320px;
+  background: #1e293b;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #334155;
+  margin-bottom: 15px;
+}
+
+.location-image {
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  background: #0f172a;
+
+  border-radius: 12px;
+}
+
+.upload-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.upload-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.upload-btn:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 1100px) {
+
+  .device-info-layout {
+    flex-direction: column;
+  }
+
+  .device-info-right {
+    width: 100%;
+  }
+
+}
+.gallery-container {
+
+display: flex;
+
+gap: 10px;
+
+flex-wrap: wrap;
+
+margin-top: 15px;
+}
+
+.gallery-thumb {
+
+width: 90px;
+
+height: 90px;
+
+object-fit: cover;
+
+border-radius: 10px;
+
+cursor: pointer;
+
+border: 2px solid #334155;
+
+transition: 0.2s;
+}
+
+.gallery-thumb:hover {
+
+transform: scale(1.05);
+
+border-color: #3b82f6;
+}
+/* ====================================
+   SWITCH ACTION BUTTONS
+==================================== */
+
+.action-group{
+
+    display:flex;
+
+    flex-direction:row;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:4px;
+
+    flex-wrap:nowrap;
+}
+
+.action-btn{
+
+    width:34px;
+
+    height:34px;
+
+    min-width:34px;
+
+    padding:0;
+
+    border-radius:8px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:14px;
+
+    line-height:1;
+}
+
+/* ปุ่ม Open */
+
+.btn-success.btn-sm{
+
+    min-width:auto !important;
+
+    padding:4px 10px;
+
+    font-size:13px;
+}
+
+/* ปุ่ม Edit/Delete */
+
+.btn-warning.action-btn,
+.btn-danger.action-btn{
+
+    min-width:34px !important;
+
+    width:34px;
+
+    height:34px;
+
+    padding:0;
+}
+
+/* ====================================
+   MOBILE TABLE
+==================================== */
+
+@media (max-width:768px){
+
+    .table{
+
+        min-width:1100px;
+    }
+
+    .table th,
+    .table td{
+
+        white-space:nowrap;
+    }
+
+    .action-group{
+
+        gap:3px;
+    }
+
+    .action-btn{
+
+        width:30px;
+
+        height:30px;
+
+        min-width:30px;
+
+        font-size:12px;
+    }
+
+    .btn-success.btn-sm{
+
+        padding:4px 8px;
+
+        font-size:12px;
+    }
+}

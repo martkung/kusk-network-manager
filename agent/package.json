@@ -1,0 +1,14 @@
+{
+  "name": "networkmanager-agent",
+  "version": "1.0.0",
+  "description": "Network Switch Ping Agent",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.4.0",
+    "ping": "^0.4.4"
+  }
+}
