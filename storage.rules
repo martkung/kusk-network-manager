@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Role checks read the matching profile in the default Firestore database.
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return signedIn() &&
+        request.auth.uid == 'Bnnm2NUV8rUQ0Am2NxBuJxnCxFi1';
+    }
+
+    function hasProfile() {
+      return signedIn() &&
+        firestore.exists(/databases/(default)/documents/users/$(request.auth.uid));
+    }
+
+    function currentRole() {
+      return isOwner()
+        ? 'owner'
+        : (hasProfile()
+          ? firestore.get(
+              /databases/(default)/documents/users/$(request.auth.uid)
+            ).data.role
+          : 'default');
+    }
+
+    function canViewInventory() {
+      return currentRole() in ['owner', 'admin', 'editor', 'viewer'];
+    }
+
+    function canEditNetwork() {
+      return currentRole() in ['owner', 'admin', 'editor'];
+    }
+
+    match /device-images/{deviceId}/{imageId} {
+      allow read: if signedIn() && canViewInventory();
+      allow create, update: if signedIn() &&
+        canEditNetwork() &&
+        request.resource.size <= 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
+      allow delete: if signedIn() && canEditNetwork();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

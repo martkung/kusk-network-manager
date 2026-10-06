@@ -4,11 +4,23 @@
   "description": "Network Switch Ping Agent",
   "main": "server.js",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "security:remove-credentials": "node remove-legacy-credentials.js",
+    "security:migrate-private-data": "node migrate-private-switch-data.js",
+    "security:configure-storage-cors": "node configure-storage-cors.js",
+    "security:sync-users": "node sync-auth-users.js",
+    "security:sync-public-switches": "node sync-public-switches.js",
+    "security:verify-roles": "node verify-role-rules.js"
   },
   "dependencies": {
-    "firebase-admin": "^13.4.0",
+    "firebase-admin": "14.5.0",
     "ping": "^0.4.4"
+  },
+  "overrides": {
+    "uuid": "11.1.1"
   }
 }

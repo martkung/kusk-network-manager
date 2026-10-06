@@ -16,3 +16,13 @@
     color: #d1d5db;
     word-break: break-word;
 }
+
+.user-role{
+    margin-top:8px;
+    color:#93c5fd;
+    font-weight:700;
+}
+
+.sidebar [hidden]{
+    display:none !important;
+}

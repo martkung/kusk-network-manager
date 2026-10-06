@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="auth-pending">
 <head>
 
 <meta charset="UTF-8">
@@ -9,9 +9,15 @@ content="width=device-width, initial-scale=1">
 <title>Network Login</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-rel="stylesheet">
+rel="stylesheet"
+integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+crossorigin="anonymous">
 
 <style>
+
+html.auth-pending body{
+    visibility:hidden;
+}
 
 body{
     background:#0f172a;
@@ -44,7 +50,7 @@ body{
 
 <body>
 
-<div class="login-card">
+<form class="login-card" id="loginForm">
 
     <h2 class="text-center mb-4">
         Network Login
@@ -54,72 +60,39 @@ body{
     type="email"
     id="email"
     class="form-control mb-3"
+    autocomplete="username"
+    required
     placeholder="Email">
 
     <input
     type="password"
     id="password"
     class="form-control mb-3"
+    autocomplete="current-password"
+    required
     placeholder="Password">
 
+    <div id="loginError" class="text-danger mb-3" role="alert"></div>
+
     <button
+    type="submit"
+    id="loginButton"
     class="btn btn-primary w-100"
-    onclick="login()">
+    >
 
     Login
 
     </button>
 
-</div>
+    <a
+    href="/home.html"
+    class="btn btn-outline-light w-100 mt-3">
+    ดูข้อมูลสาธารณะ
+    </a>
 
-<script type="module">
+</form>
 
-import { auth }
-from "./js/firebase-config.js";
-
-import {
-signInWithEmailAndPassword
-}
-from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-window.login =
-async function(){
-
-    const email =
-    document.getElementById(
-        "email"
-    ).value;
-
-    const password =
-    document.getElementById(
-        "password"
-    ).value;
-
-    try{
-
-        await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
-
-        location.href =
-        "home.html";
-
-    }
-    catch(error){
-
-        alert(
-            "Login Failed : " +
-            error.message
-        );
-
-    }
-
-};
-
-</script>
+<script type="module" src="js/login.js?v=20260928-viewer2"></script>
 
   <script src="/js/branding.js?v=20260907-school-brand" defer></script>
 </body>

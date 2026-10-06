@@ -19,11 +19,14 @@ id="sidebar">
 
     <div id="userInfo" class="user-info">
     <div class="user-title">
-        👤 Logged In
+        บัญชีผู้ใช้งาน
     </div>
 
     <div id="userEmail" class="user-email">
         Loading...
+    </div>
+    <div id="userRole" class="user-role">
+        กำลังตรวจสอบสิทธิ์...
     </div>
     </div>
 
@@ -31,16 +34,20 @@ id="sidebar">
         🏠 Home
     </a>
 
-    <a href="/pages/switches.html">
+    <a href="/pages/switches.html" data-requires-inventory hidden>
         🔀 Switches
     </a>
 
-    <a href="/pages/accesspoint.html">
+    <a href="/pages/accesspoint.html" data-requires-inventory hidden>
         📶 Access Point
     </a>
 
-    <a href="/pages/vpn-guide.html">
+    <a href="/pages/vpn-guide.html" data-requires-auth hidden>
         ⚙️ คู่มือ VPN
+    </a>
+
+    <a href="/pages/users.html" id="usersNavItem" hidden>
+        👥 จัดการผู้ใช้
     </a>
 
     <a href="#" id="logoutBtn">

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="auth-pending">
 
 <head>
 
@@ -8,7 +8,10 @@
 
 <title>Access Point</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous">
 
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="../css/sidebar.css">
@@ -26,6 +29,8 @@
         📶 Access Point Management
     </h1>
 
+    <div id="accessPointNotice" class="alert alert-info" role="status"></div>
+
     <div class="row g-4">
 
         <!-- Zyxel -->
@@ -39,8 +44,10 @@
                     <h3>🟢 Zyxel</h3>
 
                     <a
-                        href="https://nebula.zyxel.com/"
                         target="_blank"
+                        rel="noopener noreferrer"
+                        data-config-link="zyxel"
+                        hidden
                         class="btn btn-primary mt-3">
 
                         Open Config
@@ -64,8 +71,10 @@
                     <h3>🔵 UniFi</h3>
 
                     <a
-                        href="https://10.60.23.8:8443/manage/account/login?redirect=%2Fmanage"
                         target="_blank"
+                        rel="noopener noreferrer"
+                        data-config-link="unifi"
+                        hidden
                         class="btn btn-primary mt-3">
 
                         Open Config
@@ -89,8 +98,10 @@
                     <h3>🟠 Cambium</h3>
 
                     <a
-                        href="https://cloud.cambiumnetworks.com/#/"
                         target="_blank"
+                        rel="noopener noreferrer"
+                        data-config-link="cambium"
+                        hidden
                         class="btn btn-warning mt-3">
 
                         Open Config
@@ -113,13 +124,14 @@
 
                     <h3>🔴 Mikrotik</h3>
 
-                    <button
-                    class="btn btn-danger mt-3"
-                    onclick="window.open('https://YOUR-MIKROTIK-IP','_blank')">
+                    <span
+                    class="btn btn-danger mt-3 disabled"
+                    aria-disabled="true"
+                    title="ยังไม่ได้กำหนดที่อยู่ Mikrotik">
 
-                    Open Config
+                    Not Configured
 
-                    </button>
+                    </span>
 
                 </div>
 
@@ -138,8 +150,10 @@
                     <h3>🟣 Cisco</h3>
 
                     <a
-                        href="https://10.60.23.188/"
                         target="_blank"
+                        rel="noopener noreferrer"
+                        data-config-link="cisco"
+                        hidden
                         class="btn btn-secondary mt-3">
 
                         Open Config
@@ -163,8 +177,10 @@
                     <h3>🟡 TP-Link</h3>
 
                     <a
-                    href="https://omada.tplinkcloud.com"
                     target="_blank"
+                    rel="noopener noreferrer"
+                    data-config-link="tplink"
+                    hidden
                     class="btn btn-info mt-3">
 
                     Open Config
@@ -181,33 +197,9 @@
 
 </div>
 
-<script src="../js/sidebar.js"></script>
+<script src="../js/sidebar.js?v=20260928-viewer2"></script>
 
-<script type="module">
-
-import { auth }
-from "../js/firebase-config.js";
-
-import {
-onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-onAuthStateChanged(
-auth,
-(user)=>{
-
-    if(!user){
-
-        location.href =
-        "../login.html";
-
-    }
-
-});
-
-</script>
+<script type="module" src="../js/accesspoint.js?v=20260928-viewer2"></script>
 
   <script src="/js/branding.js?v=20260907-school-brand" defer></script>
 </body>

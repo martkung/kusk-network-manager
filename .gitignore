@@ -70,9 +70,14 @@ node_modules/
 
 # Local helper files
 .agents/
+.firebase-tools/
+.firebase-cli-config/
 dev-server*.log
 # Secrets
 agent/firebase-admin.json
+**/firebase-admin*.json
+**/*service-account*.json
+*.pem
 .env.*
 # OS files
 Thumbs.db

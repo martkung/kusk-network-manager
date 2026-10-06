@@ -29,6 +29,8 @@ data-bs-dismiss="modal">
 <input
 type="text"
 id="name"
+maxlength="100"
+required
 class="form-control">
 
 </div>
@@ -40,6 +42,7 @@ class="form-control">
 <input
 type="text"
 id="brand"
+maxlength="100"
 class="form-control">
 
 </div>
@@ -51,6 +54,7 @@ class="form-control">
 <input
 type="text"
 id="model"
+maxlength="100"
 class="form-control">
 
 </div>
@@ -62,6 +66,9 @@ class="form-control">
 <input
 type="text"
 id="ip"
+inputmode="decimal"
+maxlength="15"
+required
 class="form-control">
 
 </div>
@@ -73,32 +80,9 @@ class="form-control">
 <input
 type="text"
 id="deviceMAC"
+maxlength="17"
 class="form-control"
 placeholder="4C:9E:FF:80:CE:E7">
-
-</div>
-
-<div class="mb-2">
-
-    <label>Username</label>
-
-    <input
-        type="text"
-        id="username"
-        class="form-control"
-        placeholder="admin">
-
-</div>
-
-<div class="mb-2">
-
-    <label>Password</label>
-
-    <input
-        type="password"
-        id="password"
-        class="form-control"
-        placeholder="********">
 
 </div>
 
@@ -109,6 +93,7 @@ placeholder="4C:9E:FF:80:CE:E7">
     <input
         type="text"
         id="serialNumber"
+        maxlength="100"
         class="form-control"
         placeholder="SG220-26-XXXXXXXX">
 
@@ -121,6 +106,7 @@ placeholder="4C:9E:FF:80:CE:E7">
     <input
         type="text"
         id="location"
+        maxlength="200"
         class="form-control"
         placeholder="Server Room">
 

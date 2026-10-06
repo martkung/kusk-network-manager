@@ -4,6 +4,10 @@
     box-sizing:border-box;
 }
 
+[hidden]{
+    display:none !important;
+}
+
 :root{
 
     --bg:#0b1220;
@@ -731,6 +735,26 @@ transform: scale(1.05);
 
 border-color: #3b82f6;
 }
+
+.gallery-item {
+    position: relative;
+}
+
+.gallery-delete {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 12px;
+    line-height: 24px;
+    cursor: pointer;
+}
 /* ====================================
    SWITCH ACTION BUTTONS
 ==================================== */
@@ -837,4 +861,7 @@ border-color: #3b82f6;
 
         font-size:12px;
     }
+}
+html.auth-pending body {
+    visibility: hidden;
 }
