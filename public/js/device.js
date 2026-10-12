@@ -1,4 +1,5 @@
 import { db, storage } from "./firebase-config.js?v=20260928-viewer2";
+import { createAgentHealthNotice, updateDeviceStatus } from "./agent-health.js";
 import {
     canEditDevices,
     requireInventoryAccess
@@ -7,6 +8,7 @@ import {
 import {
     doc,
     getDoc,
+    onSnapshot,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
@@ -38,6 +40,30 @@ if (!publicSnapshot.exists()) {
 }
 
 let data = publicSnapshot.data();
+const healthNotice = createAgentHealthNotice(userContext);
+let latestStatusData = data;
+const unsubscribeStatus = onSnapshot(deviceRef, { includeMetadataChanges: true }, (snapshot) => {
+    if (snapshot.exists()) {
+        latestStatusData = snapshot.data();
+        healthNotice.updateDevices([latestStatusData], { fromCache: snapshot.metadata.fromCache });
+        updateDeviceStatus(document.getElementById("deviceStatus"),
+            latestStatusData.status, latestStatusData.lastSeen);
+    } else {
+        latestStatusData = null;
+        healthNotice.updateDevices(null, { failed: true });
+        document.getElementById("deviceStatus").textContent = "ไม่พบอุปกรณ์";
+    }
+}, (error) => {
+    console.error("Unable to read current device status:", error);
+    healthNotice.updateDevices(null, { failed: true });
+});
+const statusTimer = window.setInterval(() => {
+    if (!latestStatusData) {
+        return;
+    }
+    updateDeviceStatus(document.getElementById("deviceStatus"),
+        latestStatusData.status, latestStatusData.lastSeen);
+}, 30000);
 
 if (allowEditing) {
     const privateSnapshot = await getDoc(doc(db, "switchPrivate", id));
@@ -115,7 +141,7 @@ async function setMainImage(path) {
 setText("deviceName", data.name);
 setText("deviceBrand", data.brand);
 setText("deviceModel", data.model);
-setText("deviceStatus", data.status);
+updateDeviceStatus(document.getElementById("deviceStatus"), data.status, data.lastSeen);
 setText("deviceLocation", data.location);
 
 if (allowEditing) {
@@ -291,5 +317,8 @@ uploadButton.addEventListener("click", async () => {
 });
 
 window.addEventListener("beforeunload", () => {
+    unsubscribeStatus();
+    window.clearInterval(statusTimer);
+    healthNotice.stop();
     objectUrls.forEach((url) => URL.revokeObjectURL(url));
 }, { once: true });

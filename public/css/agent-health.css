@@ -1,0 +1,44 @@
+.agent-health {
+    padding: 12px 16px;
+    margin: 16px 0 24px;
+    border-left: 4px solid;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.agent-health[hidden] {
+    display: none;
+}
+
+.agent-health-success {
+    border-color: #2fb784;
+    background: #102a24;
+    color: #d4f4e5;
+}
+
+.agent-health-warning {
+    border-color: #edc45a;
+    background: #302a18;
+    color: #ffedba;
+}
+
+.agent-health-danger {
+    border-color: #ed6c79;
+    background: #321c23;
+    color: #ffd4da;
+}
+
+.agent-health-title {
+    font-size: 15px;
+}
+
+.agent-health-message,
+.agent-health-details {
+    margin: 4px 0 0;
+}
+
+.agent-health-details {
+    font-size: 12px;
+}

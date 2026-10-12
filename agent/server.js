@@ -1,7 +1,8 @@
-import { applicationDefault, initializeApp } from "firebase-admin/app";
+import { applicationDefault, deleteApp, initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import net from "node:net";
 import ping from "ping";
+import { startMonitor } from "./monitor.js";
 
 const PROJECT_ID = "kusk-network-manager";
 
@@ -11,10 +12,9 @@ const app = initializeApp({
 });
 
 const db = getFirestore(app);
-const checkIntervalMs = 300000;
-let checkInProgress = false;
+const healthRef = db.collection("monitoring").doc("networkAgent");
 
-async function checkDevices() {
+async function checkDevices(isStopping) {
   const [publicSnapshot, privateSnapshot] = await Promise.all([
     db.collection("switches").get(),
     db.collection("switchPrivate").get()
@@ -23,8 +23,20 @@ async function checkDevices() {
     snapshot.id,
     snapshot
   ]));
+  const privateIds = new Set(privateSnapshot.docs.map((snapshot) => snapshot.id));
+  const resultCounts = {
+    total: publicSnapshot.size,
+    checked: 0,
+    failed: 0,
+    skipped: publicSnapshot.docs.filter((snapshot) => (
+      !privateIds.has(snapshot.id)
+    )).length
+  };
 
   for (const privateDocument of privateSnapshot.docs) {
+    if (isStopping()) {
+      break;
+    }
     const publicDocument = publicDevices.get(privateDocument.id);
     const privateData = privateDocument.data();
     const host = String(privateData.ip || "").trim();
@@ -36,11 +48,15 @@ async function checkDevices() {
 
     if (net.isIP(host) === 0) {
       console.warn(`Skipping invalid IP for device ${privateDocument.id}`);
+      resultCounts.skipped += 1;
       continue;
     }
 
     try {
       const result = await ping.promise.probe(host, { timeout: 10 });
+      if (isStopping()) {
+        break;
+      }
       const status = result.alive ? "online" : "offline";
       const lastSeen = FieldValue.serverTimestamp();
       const publicData = publicDocument.data();
@@ -58,29 +74,30 @@ async function checkDevices() {
       });
 
       await batch.commit();
+      resultCounts.checked += 1;
       console.log(`${publicData.name || privateDocument.id} => ${status}`);
     } catch (error) {
+      resultCounts.failed += 1;
       console.error(`Unable to check device ${privateDocument.id}:`, error.message);
     }
   }
+  return resultCounts;
 }
 
-async function runDeviceCheck() {
-  if (checkInProgress) {
-    console.warn("Skipping device check because the previous run is still active");
-    return;
-  }
+const monitor = await startMonitor({
+  checkDevices,
+  publishHealth: (data) => healthRef.set(data, { merge: true }),
+  timestamp: () => FieldValue.serverTimestamp()
+});
+let shutdownPromise;
 
-  checkInProgress = true;
-
-  try {
-    await checkDevices();
-  } catch (error) {
-    console.error("Device check failed:", error);
-  } finally {
-    checkInProgress = false;
-  }
+function shutdown() {
+  shutdownPromise ??= (async () => {
+    await monitor.stop();
+    await deleteApp(app);
+  })();
+  return shutdownPromise;
 }
 
-void runDeviceCheck();
-setInterval(runDeviceCheck, checkIntervalMs);
+process.once("SIGINT", () => void shutdown());
+process.once("SIGTERM", () => void shutdown());

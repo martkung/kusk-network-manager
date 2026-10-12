@@ -1,4 +1,5 @@
 import { db } from "../firebase-config.js?v=20260928-viewer2";
+import { updateDeviceStatus } from "../agent-health.js";
 
 import {
     collection,
@@ -63,8 +64,10 @@ function createDeviceRow(data, onEdit, onDelete, canEdit, publicGuest) {
     const statusBadge = document.createElement("span");
     const online = data.status === "online";
 
-    statusBadge.className = `badge ${online ? "bg-success" : "bg-danger"}`;
-    statusBadge.textContent = online ? "online" : "offline";
+    statusBadge.dataset.deviceStatus = online ? "online" : "offline";
+    statusBadge.dataset.lastSeen = String(data.lastSeen?.toMillis?.() ||
+        new Date(data.lastSeen).getTime());
+    updateDeviceStatus(statusBadge, data.status, data.lastSeen);
     statusCell.appendChild(statusBadge);
     row.appendChild(statusCell);
     row.appendChild(createCell(formatDate(data.lastSeen)));
@@ -128,7 +131,8 @@ export function loadSwitches({
     onEdit,
     onDelete,
     canEdit = false,
-    publicGuest = false
+    publicGuest = false,
+    onInventoryUpdate = () => {}
 }) {
     let publicDevices = [];
     let privateDevices = new Map();
@@ -198,6 +202,7 @@ export function loadSwitches({
 
     function handleError(error) {
         console.error("Firestore listener failed:", error);
+        onInventoryUpdate(null, { failed: true });
 
         const table = document.getElementById("switchTable");
         if (table) {
@@ -208,6 +213,7 @@ export function loadSwitches({
     const unsubscribers = [
         onSnapshot(
             collection(db, publicGuest ? "publicSwitches" : "switches"),
+            { includeMetadataChanges: true },
             (querySnapshot) => {
                 publicDevices = querySnapshot.docs.map((documentSnapshot) => ({
                     id: documentSnapshot.id,
@@ -215,6 +221,7 @@ export function loadSwitches({
                 }));
                 publicReady = true;
                 render();
+                onInventoryUpdate(publicDevices, { fromCache: querySnapshot.metadata.fromCache });
             },
             handleError
         )
@@ -237,7 +244,14 @@ export function loadSwitches({
         );
     }
 
+    const freshnessTimer = window.setInterval(() => {
+        document.querySelectorAll("[data-device-status]").forEach((badge) => {
+            updateDeviceStatus(badge, badge.dataset.deviceStatus, Number(badge.dataset.lastSeen));
+        });
+    }, 30000);
+
     return () => {
+        window.clearInterval(freshnessTimer);
         unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
 }

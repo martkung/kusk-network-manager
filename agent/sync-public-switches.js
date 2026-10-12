@@ -24,7 +24,7 @@ function publicSwitchData(data) {
     lastSeen: typeof data.lastSeen === "string" ||
       data.lastSeen instanceof Timestamp
       ? data.lastSeen
-      : new Date().toISOString()
+      : ""
   };
 }
 

@@ -54,7 +54,7 @@ export async function addSwitch(data) {
         model: data.model || "",
         location: data.location || "",
         status: data.status || "offline",
-        lastSeen: new Date().toISOString()
+        lastSeen: ""
     });
     batch.set(
         doc(db, "publicSwitches", publicReference.id),

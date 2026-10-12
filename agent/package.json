@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node server.js",
+    "test": "node --experimental-vm-modules --test test/*.test.mjs",
     "security:remove-credentials": "node remove-legacy-credentials.js",
     "security:migrate-private-data": "node migrate-private-switch-data.js",
     "security:configure-storage-cors": "node configure-storage-cors.js",

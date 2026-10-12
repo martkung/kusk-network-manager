@@ -96,6 +96,13 @@ function expectDenied(label, response) {
   console.log(label + ": passed");
 }
 
+function expectReadableDocument(label, response) {
+  if (![200, 404].includes(response.status)) {
+    throw new Error(label + " returned " + String(response.status));
+  }
+  console.log(label + ": passed");
+}
+
 function expectCondition(label, condition) {
   if (!condition) {
     throw new Error(label + " failed");
@@ -230,6 +237,39 @@ try {
     200
   );
 
+  expectReadableDocument(
+    "Owner can read Agent health",
+    await firestoreRequest("/monitoring/networkAgent", { token: ownerToken })
+  );
+  expectReadableDocument(
+    "Viewer can read Agent health",
+    await firestoreRequest("/monitoring/networkAgent", { token: viewerToken })
+  );
+  expectStatus(
+    "Guest cannot read internal Agent health",
+    await firestoreRequest("/monitoring/networkAgent"),
+    403
+  );
+  expectStatus(
+    "Viewer cannot list monitoring documents",
+    await firestoreRequest("/monitoring?pageSize=1", { token: viewerToken }),
+    403
+  );
+  for (const [label, token] of [["Owner", ownerToken], ["Viewer", viewerToken]]) {
+    expectStatus(
+      label + " cannot forge Agent heartbeat",
+      await firestoreRequest(
+        "/monitoring/networkAgent?currentDocument.exists=true&updateMask.fieldPaths=lastAgentSeen",
+        {
+          token,
+          method: "PATCH",
+          body: { fields: { lastAgentSeen: { timestampValue: new Date().toISOString() } } }
+        }
+      ),
+      403
+    );
+  }
+
   expectDenied(
     "Unauthenticated protected image read is denied",
     await storageRequest(firstImagePath)
@@ -324,6 +364,11 @@ try {
   );
 
   if (defaultToken) {
+    expectStatus(
+      "Default account cannot read Agent health",
+      await firestoreRequest("/monitoring/networkAgent", { token: defaultToken }),
+      403
+    );
     expectStatus(
       "Default account cannot read inventory",
       await firestoreRequest("/switches?pageSize=1", { token: defaultToken }),

@@ -1,4 +1,5 @@
 import { db } from "./firebase-config.js?v=20260928-viewer2";
+import { createAgentHealthNotice } from "./agent-health.js";
 import {
     canEditDevices,
     canViewInventory,
@@ -23,6 +24,7 @@ if (!publicGuest && !canViewInventory(userContext.role)) {
 }
 
 const allowEditing = canEditDevices(userContext.role);
+const healthNotice = createAgentHealthNotice(userContext);
 
 if (publicGuest) {
     document.getElementById("publicGuestNotice")?.removeAttribute("hidden");
@@ -281,7 +283,11 @@ const unsubscribe = loadSwitches({
     onEdit: editDevice,
     onDelete: removeDevice,
     canEdit: allowEditing,
-    publicGuest
+    publicGuest,
+    onInventoryUpdate: (devices, metadata) => healthNotice.updateDevices(devices, metadata)
 });
 
-window.addEventListener("beforeunload", unsubscribe, { once: true });
+window.addEventListener("beforeunload", () => {
+    unsubscribe();
+    healthNotice.stop();
+}, { once: true });

@@ -3,6 +3,6 @@ export function publicSwitchData(data) {
         brand: String(data.brand || "").trim(),
         model: String(data.model || "").trim(),
         status: data.status === "online" ? "online" : "offline",
-        lastSeen: data.lastSeen || new Date().toISOString()
+        lastSeen: data.lastSeen ?? ""
     };
 }

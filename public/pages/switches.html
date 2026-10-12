@@ -14,6 +14,7 @@
 
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="../css/sidebar.css">
+<link rel="stylesheet" href="/css/agent-health.css">
 <link rel="stylesheet" href="../css/modal.css">
 
   <link rel="stylesheet" href="/css/branding.css?v=20260907-school-brand">
@@ -28,6 +29,8 @@
     <h1 class="page-title">
         Network Switch Manager
     </h1>
+
+    <div id="agentHealthNotice" hidden></div>
 
     <div id="publicGuestNotice" class="alert alert-info mb-4" role="status" hidden>
         ผู้เยี่ยมชมจะเห็นเฉพาะยี่ห้อ รุ่น และสถานะ ไม่แสดงชื่ออุปกรณ์ สถานที่ รูปภาพ
@@ -70,7 +73,7 @@
             <div class="card-body">
 
                 <div class="card-title-small">
-                    Online
+                    Online ล่าสุด
                 </div>
 
                 <div
@@ -94,7 +97,7 @@
             <div class="card-body">
 
                 <div class="card-title-small">
-                    Offline
+                    Offline ล่าสุด
                 </div>
 
                 <div
@@ -118,7 +121,7 @@
             <div class="card-body">
 
                 <div class="card-title-small">
-                    Availability
+                    Availability ล่าสุด
                 </div>
 
                 <div

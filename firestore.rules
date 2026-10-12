@@ -240,6 +240,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /monitoring/networkAgent {
+      allow get: if signedIn() && canViewInventory();
+      allow list, write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
