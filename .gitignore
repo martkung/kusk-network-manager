@@ -79,6 +79,11 @@ agent/firebase-admin.json
 **/*service-account*.json
 *.pem
 .env.*
+*.nmbak
+*.nmbak.partial
+*.nmrecovery
+**/backup-key*.json
+**/network-backup*.json
 # OS files
 Thumbs.db
 .DS_Store
