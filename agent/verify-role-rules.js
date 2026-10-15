@@ -1,6 +1,6 @@
 import { cert, deleteApp, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { readFileSync } from "node:fs";
 
 const PROJECT_ID = "kusk-network-manager";
@@ -133,6 +133,7 @@ const defaultUid = uidByRole.get("default");
 const defaultToken = defaultUid ? await idTokenFor(defaultUid) : null;
 const testDocumentId = "permission-check-" + Date.now().toString(36);
 const testUserId = testDocumentId + "-user";
+const testIncidentId = testDocumentId + "-incident";
 const [publicSwitches, privateSwitches, guestSwitches] = await Promise.all([
   db.collection("switches").get(),
   db.collection("switchPrivate").get(),
@@ -166,6 +167,17 @@ if (!firstImagePath) {
 }
 
 try {
+  await db.collection("networkIncidents").doc(testIncidentId).set({
+    deviceId: testDocumentId,
+    deviceName: "Permission verification (temporary)",
+    brand: "", model: "", location: "",
+    status: "open",
+    offlineSince: FieldValue.serverTimestamp(),
+    openedAt: FieldValue.serverTimestamp(),
+    lastObservedAt: FieldValue.serverTimestamp(),
+    resolvedAt: null, resolution: "",
+    acknowledgedAt: null, acknowledgedBy: ""
+  });
   expectCondition(
     "Public inventory contains no private network fields or download URLs",
     publicDataIsSafe
@@ -311,6 +323,62 @@ try {
     403
   );
 
+  for (const path of ["statusHistory", "networkIncidents"]) {
+    expectStatus(
+      "Viewer can read " + path,
+      await firestoreRequest("/" + path + "?pageSize=1", { token: viewerToken }),
+      200
+    );
+    expectStatus(
+      "Guest cannot read " + path,
+      await firestoreRequest("/" + path + "?pageSize=1"),
+      403
+    );
+  }
+  for (const [label, token] of [["Owner", ownerToken], ["Viewer", viewerToken]]) {
+    expectStatus(
+      label + " cannot read internal monitoring state",
+      await firestoreRequest("/monitoringState?pageSize=1", { token }),
+      403
+    );
+  }
+  expectStatus(
+    "Owner cannot forge status history",
+    await firestoreRequest("/statusHistory?documentId=" + testDocumentId, {
+      token: ownerToken, method: "POST", body: { fields: { toStatus: { stringValue: "offline" } } }
+    }),
+    403
+  );
+  expectStatus(
+    "Owner cannot close an incident from the browser",
+    await firestoreRequest("/networkIncidents/" + testIncidentId + "?updateMask.fieldPaths=status", {
+      token: ownerToken, method: "PATCH", body: { fields: { status: { stringValue: "resolved" } } }
+    }),
+    403
+  );
+  function acknowledgementRequest(token, actorUid) {
+    return firestoreRequest(":commit", {
+      token, method: "POST", body: {
+        writes: [{
+          update: {
+            name: "projects/" + PROJECT_ID + "/databases/(default)/documents/networkIncidents/" + testIncidentId,
+            fields: { acknowledgedBy: { stringValue: actorUid } }
+          },
+          updateMask: { fieldPaths: ["acknowledgedBy"] },
+          updateTransforms: [{ fieldPath: "acknowledgedAt", setToServerValue: "REQUEST_TIME" }]
+        }]
+      }
+    });
+  }
+  expectStatus("Viewer cannot acknowledge incidents",
+    await acknowledgementRequest(viewerToken, viewerUid), 403);
+  expectStatus("Acknowledgement actor cannot be spoofed",
+    await acknowledgementRequest(ownerToken, "spoofed-actor"), 403);
+  expectStatus("Owner can acknowledge with server time and their own UID",
+    await acknowledgementRequest(ownerToken, OWNER_UID), 200);
+  expectStatus("Acknowledgement cannot be overwritten",
+    await acknowledgementRequest(ownerToken, OWNER_UID), 403);
+
   expectStatus(
     "Invalid IPv4 addresses are rejected",
     await firestoreRequest(
@@ -382,7 +450,9 @@ try {
     db.collection("switches").doc(testDocumentId).delete(),
     db.collection("switchPrivate").doc(testDocumentId).delete(),
     db.collection("publicSwitches").doc(testDocumentId).delete(),
-    db.collection("users").doc(testUserId).delete()
+    db.collection("users").doc(testUserId).delete(),
+    db.collection("statusHistory").doc(testDocumentId).delete(),
+    db.collection("networkIncidents").doc(testIncidentId).delete()
   ]);
   await deleteApp(app);
 }

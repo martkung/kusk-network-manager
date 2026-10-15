@@ -3,6 +3,7 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import net from "node:net";
 import ping from "ping";
 import { startMonitor } from "./monitor.js";
+import { interruptObservation, recordObservation, reconcileRemovedDevices } from "./status-store.js";
 
 const PROJECT_ID = "kusk-network-manager";
 
@@ -13,12 +14,28 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 const healthRef = db.collection("monitoring").doc("networkAgent");
+let needsStreakReset = true;
 
 async function checkDevices(isStopping) {
+  try {
+    return await checkDevicesOnce(isStopping);
+  } catch (error) {
+    needsStreakReset = true;
+    throw error;
+  }
+}
+
+async function checkDevicesOnce(isStopping) {
   const [publicSnapshot, privateSnapshot] = await Promise.all([
     db.collection("switches").get(),
     db.collection("switchPrivate").get()
   ]);
+  if (needsStreakReset) {
+    for (const device of publicSnapshot.docs) {
+      await interruptObservation(db, device.id);
+    }
+    needsStreakReset = false;
+  }
   const publicDevices = new Map(publicSnapshot.docs.map((snapshot) => [
     snapshot.id,
     snapshot
@@ -32,6 +49,11 @@ async function checkDevices(isStopping) {
       !privateIds.has(snapshot.id)
     )).length
   };
+  for (const device of publicSnapshot.docs) {
+    if (!privateIds.has(device.id)) {
+      await interruptObservation(db, device.id);
+    }
+  }
 
   for (const privateDocument of privateSnapshot.docs) {
     if (isStopping()) {
@@ -49,6 +71,7 @@ async function checkDevices(isStopping) {
     if (net.isIP(host) === 0) {
       console.warn(`Skipping invalid IP for device ${privateDocument.id}`);
       resultCounts.skipped += 1;
+      await interruptObservation(db, privateDocument.id);
       continue;
     }
 
@@ -58,28 +81,32 @@ async function checkDevices(isStopping) {
         break;
       }
       const status = result.alive ? "online" : "offline";
-      const lastSeen = FieldValue.serverTimestamp();
       const publicData = publicDocument.data();
-      const batch = db.batch();
-
-      batch.update(publicDocument.ref, {
-        status,
-        lastSeen
+      const recorded = await recordObservation(db, {
+        deviceId: privateDocument.id,
+        host,
+        status
       });
-      batch.set(db.collection("publicSwitches").doc(privateDocument.id), {
-        brand: typeof publicData.brand === "string" ? publicData.brand : "",
-        model: typeof publicData.model === "string" ? publicData.model : "",
-        status,
-        lastSeen
-      });
-
-      await batch.commit();
+      if (!recorded) {
+        resultCounts.skipped += 1;
+        await interruptObservation(db, privateDocument.id);
+        continue;
+      }
       resultCounts.checked += 1;
       console.log(`${publicData.name || privateDocument.id} => ${status}`);
     } catch (error) {
       resultCounts.failed += 1;
       console.error(`Unable to check device ${privateDocument.id}:`, error.message);
+      try {
+        await interruptObservation(db, privateDocument.id);
+      } catch (trackingError) {
+        needsStreakReset = true;
+        console.error("Unable to interrupt status observation:", trackingError.message);
+      }
     }
+  }
+  if (!isStopping()) {
+    await reconcileRemovedDevices(db, publicDevices);
   }
   return resultCounts;
 }

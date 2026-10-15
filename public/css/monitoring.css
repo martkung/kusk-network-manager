@@ -1,0 +1,53 @@
+.monitoring-page .page-title { margin-bottom: 12px; }
+.incident-overview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 48px;
+    padding: 16px 0 24px;
+    border-bottom: 1px solid var(--border);
+}
+.incident-overview span { color: var(--text-soft); font-size: 14px; }
+.incident-overview strong { display: block; font-size: 30px; color: #f3bb69; }
+.monitoring-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 20px 0 12px;
+}
+.monitoring-tabs { display: flex; gap: 4px; }
+.monitoring-tabs button {
+    background: transparent;
+    color: var(--text-soft);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 10px 12px;
+    font-size: 15px;
+    min-height: 44px;
+}
+.monitoring-tabs button[aria-selected="true"] { color: white; border-color: #53c7ab; }
+.monitoring-tabs button:focus-visible { outline: 2px solid #53c7ab; outline-offset: 2px; }
+.monitoring-filters { display: flex; gap: 10px; flex-wrap: wrap; }
+.monitoring-filters select { width: 210px; max-width: 100%; font-size: 14px; }
+.monitoring-status { color: var(--text-soft); font-size: 13px; margin-bottom: 12px; }
+.monitoring-table-wrap { overflow-x: auto; border-top: 1px solid var(--border); }
+.monitoring-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.monitoring-table th { color: var(--text-soft); font-size: 12px; white-space: nowrap; }
+.monitoring-table th, .monitoring-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.monitoring-table td:first-child { min-width: 160px; }
+.monitoring-table a { color: #9edbcf; text-decoration: none; overflow-wrap: anywhere; }
+.monitor-device-location { color: var(--text-soft); font-size: 12px; margin-top: 4px; }
+.monitoring-table .badge { font-size: 12px; }
+.monitoring-empty { text-align: center; padding: 32px 12px !important; color: var(--text-soft); }
+.monitoring-pagination { display: flex; justify-content: center; padding: 20px 0; }
+.offline-notice { overflow-wrap: anywhere; }
+@media (max-width: 768px) {
+    .monitoring-filters { width: 100%; }
+    .monitoring-filters select { width: 100%; }
+    .monitoring-table { min-width: 720px; }
+}

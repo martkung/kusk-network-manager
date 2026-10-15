@@ -245,6 +245,24 @@ service cloud.firestore {
       allow list, write: if false;
     }
 
+    match /statusHistory/{eventId} {
+      allow read: if signedIn() && canViewInventory();
+      allow write: if false;
+    }
+
+    match /networkIncidents/{incidentId} {
+      allow read: if signedIn() && canViewInventory();
+      allow create, delete: if false;
+      allow update: if signedIn() && canEditNetwork() &&
+        resource.data.status == 'open' &&
+        resource.data.acknowledgedAt == null &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'acknowledgedAt', 'acknowledgedBy'
+        ]) &&
+        request.resource.data.acknowledgedAt == request.time &&
+        request.resource.data.acknowledgedBy == request.auth.uid;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

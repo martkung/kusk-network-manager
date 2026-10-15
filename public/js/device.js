@@ -31,6 +31,8 @@ if (!id || id.includes("/") || id.length > 200) {
 }
 
 const deviceRef = doc(db, "switches", id);
+document.getElementById("deviceHistoryLink").href =
+    "/pages/monitoring.html?tab=history&device=" + encodeURIComponent(id);
 const publicSnapshot = await getDoc(deviceRef);
 
 if (!publicSnapshot.exists()) {

@@ -77,6 +77,35 @@ powershell -NoProfile -File agent/install-startup-task.ps1 -StartNow
 
 Task Scheduler ใช้ชื่อ `KUSK Network Agent` ทำงานด้วยสิทธิ์ผู้ใช้ปกติ เริ่มใหม่ได้สูงสุด 3 ครั้งเมื่อโปรแกรมหยุดผิดปกติ และไม่เปิดซ้อนตัวเอง บันทึกการทำงานอยู่ใน `agent/logs/agent.log` ซึ่งไม่รวมใน Git งานนี้ต้องมีผู้ใช้เข้าสู่ Windows และเครื่องต้องไม่ Sleep; หากต้องการทำงานตั้งแต่บูตโดยไม่มีผู้ใช้เข้าสู่ระบบ ต้องตั้งค่าเครื่องบริการแยกต่างหาก
 
+## ประวัติสถานะและแจ้งเตือน Offline
+
+- เปิดหน้า `pages/monitoring.html` จากเมนู "สถานะและแจ้งเตือน" เพื่อดูเหตุการณ์และประวัติแยกตามอุปกรณ์
+- Agent บันทึกครั้งแรกที่ตรวจพบ และบันทึกเพิ่มเฉพาะเมื่อสถานะเปลี่ยน ไม่สร้างประวัติซ้ำทุกครั้งที่ Ping
+- เปิดเหตุการณ์เมื่อ Offline อย่างน้อย 3 รอบต่อเนื่อง และผ่านไปอย่างน้อย 10 นาทีจากรอบแรก
+- เหตุการณ์เดิมไม่ถูกเปิดซ้ำหลังเริ่ม Agent ใหม่; เมื่อกลับมา Online จะปิดเป็น `resolved` อัตโนมัติ
+- การตรวจผิดพลาด การเปลี่ยน IP และช่องว่างระหว่างการตรวจเกิน 15 นาทีจะเริ่มนับรอบที่ยังไม่ยืนยันใหม่
+- ระยะเวลา Offline คำนวณถึงเวลาตรวจจริงล่าสุด ไม่เพิ่มเวลาที่ Agent หยุดเป็นเวลาขัดข้องที่ยืนยันแล้ว
+- หากเหตุการณ์มีการขาดช่วงของผลตรวจ จะแสดง "มีช่วงขาดข้อมูล" ระยะเวลาที่แสดงคือช่วงระหว่างผลตรวจ มิใช่การยืนยันว่า Offline ทุกวินาทีในช่วงนั้น
+- ผู้ดูอ่านประวัติและเหตุการณ์ได้ ผู้แก้ไข/ผู้ดูแลกดรับทราบได้โดยใช้เวลาของ Firebase และ UID ของตนเอง
+- การรับทราบไม่ทำให้อุปกรณ์ Online และไม่ปิดเหตุการณ์ ผลตรวจและประวัติยังเขียนได้เฉพาะ Agent
+- ข้อมูลใน `statusHistory` และ `networkIncidents` ไม่มี IP, MAC, Serial หรือ URL ตั้งค่า และไม่เปิดให้ผู้เยี่ยมชม
+- `monitoringState` เป็นข้อมูลภายในของ Agent หน้าเว็บทุกสิทธิ์อ่านหรือเขียนไม่ได้
+- หากลบอุปกรณ์หรือเปลี่ยน IP ระหว่างมีเหตุการณ์ จะปิดด้วยสาเหตุนั้นโดยไม่รายงานว่ากลับมา Online
+- ประวัติเริ่มจากผลตรวจหลังใช้ Agent รุ่นนี้ ไม่สร้างประวัติย้อนหลังจากสถานะล่าสุดเดิม
+- ช่องทางแจ้งเตือนที่ใช้งานได้ในชุดนี้คือรายการในเว็บ ตัวเลขบนเมนู และข้อความแจ้งเตือนบนหน้าที่แสดง heartbeat
+
+ทดสอบการเปลี่ยนสถานะจริงในพื้นที่ Firebase แยกจากอุปกรณ์โรงเรียน (ไม่มีการ Ping หรือส่งข้อความภายนอก) และเผยแพร่กฎ/ดัชนี/หน้าเว็บ:
+
+```powershell
+cd agent
+npm test
+npm run security:verify-status
+cd ..
+firebase deploy --only firestore,hosting
+```
+
+หลัง Deploy ต้องเริ่ม Task `KUSK Network Agent` ใหม่เพื่อใช้โค้ดล่าสุด และรอให้ดัชนี Firestore สร้างเสร็จก่อนใช้ตัวกรองประวัติ ดัชนีทั้งหมดกำหนดไว้ใน `firestore.indexes.json`
+
 ## ขั้นตอนปรับระบบเดิมให้ปลอดภัย
 
 1. ยกเลิก Service Account Key เดิมใน Google Cloud IAM และสร้างกุญแจใหม่
@@ -93,7 +122,7 @@ npm run security:sync-public-switches
 npm run security:configure-storage-cors
 npm run security:verify-roles
 cd ..
-firebase deploy --only firestore:rules,storage,hosting
+firebase deploy --only firestore,storage,hosting
 ```
 
 การ Deploy กฎ Storage ครั้งแรกที่มีการอ่านสิทธิ์จาก Firestore ต้องทำในเทอร์มินัลแบบโต้ตอบ และยืนยันให้ Firebase CLI เพิ่มบทบาท `roles/firebaserules.firestoreServiceAgent` แก่ Firebase Storage service agent เมื่อระบบถาม
@@ -107,5 +136,5 @@ firebase deploy --only firestore:rules,storage,hosting
 ## Deploy
 
 ```powershell
-firebase deploy --only firestore:rules,storage,hosting
+firebase deploy --only firestore,storage,hosting
 ```

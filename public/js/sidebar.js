@@ -117,6 +117,10 @@ async function loadUserInfo() {
             inventoryNavItems.forEach((item) => {
                 item.hidden = false;
             });
+            const monitoringNavItem = document.getElementById("monitoringNavItem");
+            if (monitoringNavItem) { monitoringNavItem.hidden = false; }
+            const { watchIncidentSummary } = await import("/js/incident-summary.js");
+            watchIncidentSummary();
         }
 
         authenticatedNavItems.forEach((item) => {

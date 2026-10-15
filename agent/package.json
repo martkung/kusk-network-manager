@@ -15,7 +15,8 @@
     "security:configure-storage-cors": "node configure-storage-cors.js",
     "security:sync-users": "node sync-auth-users.js",
     "security:sync-public-switches": "node sync-public-switches.js",
-    "security:verify-roles": "node verify-role-rules.js"
+    "security:verify-roles": "node verify-role-rules.js",
+    "security:verify-status": "node verify-status-monitoring.js"
   },
   "dependencies": {
     "firebase-admin": "14.5.0",

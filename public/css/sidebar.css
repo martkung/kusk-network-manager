@@ -26,3 +26,14 @@
 .sidebar [hidden]{
     display:none !important;
 }
+.network-alert-count {
+    flex-shrink: 0;
+    background: #a42939;
+    color: white;
+    border-radius: 4px;
+    padding: 1px 6px;
+    min-width: 24px;
+    text-align: center;
+    font-size: 12px;
+}
+.sidebar { overflow-y: auto; }
