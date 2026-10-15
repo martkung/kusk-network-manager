@@ -67,6 +67,7 @@ async function loadUserInfo() {
     try {
         const {
             canViewInventory,
+            canEditDevices,
             canManageUsers,
             getOptionalUserContext,
             getRoleLabel
@@ -112,6 +113,9 @@ async function loadUserInfo() {
         if (usersNavItem && canManageUsers(context.role)) {
             usersNavItem.hidden = false;
         }
+
+        const deviceRecordsNavItem = document.getElementById("deviceRecordsNavItem");
+        if (deviceRecordsNavItem) { deviceRecordsNavItem.hidden = !canEditDevices(context.role); }
 
         if (canViewInventory(context.role)) {
             inventoryNavItems.forEach((item) => {

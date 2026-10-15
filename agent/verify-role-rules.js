@@ -323,6 +323,15 @@ try {
     403
   );
 
+  for (const path of ["deviceAudit", "deviceTrash"]) {
+    for (const [label, token] of [["Viewer", viewerToken], ["Guest", undefined]]) {
+      expectStatus(label + " cannot read " + path,
+        await firestoreRequest("/" + path + "?pageSize=1", { token }), 403);
+    }
+    expectStatus("Owner can read " + path,
+      await firestoreRequest("/" + path + "?pageSize=1", { token: ownerToken }), 200);
+  }
+
   for (const path of ["statusHistory", "networkIncidents"]) {
     expectStatus(
       "Viewer can read " + path,

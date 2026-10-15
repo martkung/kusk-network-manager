@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --experimental-vm-modules --test test/*.test.mjs",
+    "test:security": "node --experimental-vm-modules --test --test-concurrency=1 security-test/*.test.mjs",
     "security:remove-credentials": "node remove-legacy-credentials.js",
     "security:migrate-private-data": "node migrate-private-switch-data.js",
     "security:configure-storage-cors": "node configure-storage-cors.js",
@@ -23,6 +24,11 @@
     "ping": "^0.4.4"
   },
   "overrides": {
-    "uuid": "11.1.1"
+    "uuid": "11.1.1",
+    "@grpc/grpc-js": "1.14.6"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "4.0.1",
+    "firebase": "11.9.1"
   }
 }

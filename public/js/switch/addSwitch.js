@@ -1,11 +1,9 @@
 import { db } from "../firebase-config.js?v=20260928-viewer2";
-import { publicSwitchData } from "./publicSwitch.js?v=20261006-public-guest1";
+import { changeDevice } from "./device-store.js";
 
 import {
     collection,
-    doc,
-    getDocs,
-    writeBatch
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 function normalized(value) {
@@ -44,30 +42,7 @@ export async function addSwitch(data) {
         }
     }
 
-    const publicReference = doc(collection(db, "switches"));
-    const privateReference = doc(db, "switchPrivate", publicReference.id);
-    const batch = writeBatch(db);
-
-    batch.set(publicReference, {
-        name: data.name,
-        brand: data.brand || "",
-        model: data.model || "",
-        location: data.location || "",
-        status: data.status || "offline",
-        lastSeen: ""
-    });
-    batch.set(
-        doc(db, "publicSwitches", publicReference.id),
-        publicSwitchData(data)
-    );
-    batch.set(privateReference, {
-        ip: data.ip,
-        mac: data.mac || "",
-        serialNumber: data.serialNumber || "",
-        configUrl: data.configUrl
-    });
-
-    await batch.commit();
+    await changeDevice("create", null, data);
 
     return true;
 }

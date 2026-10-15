@@ -26,7 +26,8 @@ export const historyKindLabels = {
     baseline: "เริ่มบันทึก",
     status_changed: "สถานะเปลี่ยน",
     target_changed: "เปลี่ยน IP",
-    device_removed: "ลบอุปกรณ์"
+    device_removed: "ลบอุปกรณ์",
+    device_restored: "กู้คืนอุปกรณ์"
 };
 
 export const incidentStatusLabels = {
@@ -34,5 +35,5 @@ export const incidentStatusLabels = {
 };
 
 export const resolutionLabels = {
-    target_changed: "เปลี่ยน IP", device_removed: "ลบอุปกรณ์"
+    target_changed: "เปลี่ยน IP", device_removed: "ลบอุปกรณ์", device_restored: "กู้คืนอุปกรณ์"
 };

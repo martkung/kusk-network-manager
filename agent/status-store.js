@@ -24,7 +24,7 @@ function identity(deviceId, data) {
   };
 }
 
-export async function recordObservation(db, { deviceId, host, status }) {
+export async function recordObservation(db, { deviceId, host, status, expectedLifecycleId }) {
   const deviceRef = db.collection("switches").doc(deviceId);
   const privateRef = db.collection("switchPrivate").doc(deviceId);
   const stateRef = db.collection("monitoringState").doc(deviceId);
@@ -34,7 +34,8 @@ export async function recordObservation(db, { deviceId, host, status }) {
 
   return db.runTransaction(async (transaction) => {
     const [device, privateDevice, tracking] = await transaction.getAll(deviceRef, privateRef, stateRef);
-    if (!device.exists || !privateDevice.exists || privateDevice.data().ip !== host) {
+    if (!device.exists || !privateDevice.exists || privateDevice.data().ip !== host ||
+      (expectedLifecycleId !== undefined && (device.data().lifecycleId || "") !== expectedLifecycleId)) {
       return false;
     }
 
@@ -43,12 +44,18 @@ export async function recordObservation(db, { deviceId, host, status }) {
       ? await transaction.get(db.collection("networkIncidents").doc(previous.activeIncidentId))
       : null;
     const observedAt = device.readTime;
-    const result = observeStatus(previous, {
+    const lifecycleId = device.data().lifecycleId || "";
+    const restored = previous && (previous.lifecycleId || "") !== lifecycleId;
+    const result = observeStatus(restored ? { ...previous, targetKey: "previous-lifecycle" } : previous, {
       status,
       now: observedAt.toMillis(),
       targetKey,
       incidentId: newIncidentRef.id
     });
+    if (restored) {
+      result.transition.kind = "device_restored";
+      if (result.incidentAction?.type === "close") { result.incidentAction.reason = "device_restored"; }
+    }
     const deviceIdentity = identity(deviceId, device.data());
 
     transaction.update(deviceRef, { status, lastSeen: observedAt });
@@ -61,6 +68,7 @@ export async function recordObservation(db, { deviceId, host, status }) {
     transaction.set(stateRef, {
       ...deviceIdentity,
       ...result.state,
+      lifecycleId,
       lastObservedAt: observedAt,
       offlineSince: timestamp(result.state.offlineSince)
     });

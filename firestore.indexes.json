@@ -1,6 +1,22 @@
 {
   "indexes": [
     {
+      "collectionGroup": "deviceAudit",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deviceId", "order": "ASCENDING" },
+        { "fieldPath": "occurredAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "deviceTrash",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deviceId", "order": "ASCENDING" },
+        { "fieldPath": "deletedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "statusHistory",
       "queryScope": "COLLECTION",
       "fields": [

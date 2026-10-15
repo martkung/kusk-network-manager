@@ -85,7 +85,8 @@ async function checkDevicesOnce(isStopping) {
       const recorded = await recordObservation(db, {
         deviceId: privateDocument.id,
         host,
-        status
+        status,
+        expectedLifecycleId: publicData.lifecycleId || ""
       });
       if (!recorded) {
         resultCounts.skipped += 1;

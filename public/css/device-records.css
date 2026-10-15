@@ -1,0 +1,29 @@
+.records-page { min-width: 0; }
+.records-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 12px 0; }
+.records-toolbar select { width: 240px; max-width: 100%; font-size: 14px; }
+.records-tabs { display: flex; gap: 4px; }
+.records-tabs button { color: var(--text-soft); background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 12px; min-height: 44px; font-size: 15px; }
+.records-tabs button[aria-selected="true"] { color: #fff; border-bottom-color: #53c7ab; }
+.records-tabs button:focus-visible { outline: 2px solid #53c7ab; outline-offset: 2px; }
+.records-status { color: var(--text-soft); font-size: 13px; margin: 8px 0 16px; }
+.records-scroll { overflow-x: auto; border-top: 1px solid var(--border); }
+.records-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.records-table th, .records-table td { padding: 14px 12px; vertical-align: top; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.records-table th { color: var(--text-soft); font-size: 12px; white-space: nowrap; }
+.records-table td:first-child { min-width: 130px; }
+.records-device { display: block; font-weight: 600; color: #9edbcf; text-decoration: none; }
+.records-meta { color: var(--text-soft); font-size: 12px; margin-top: 4px; }
+.records-table details { min-width: 180px; max-width: 480px; }
+.records-table summary { color: #9edbcf; cursor: pointer; min-height: 24px; }
+.records-difference { display: grid; grid-template-columns: minmax(80px, 1fr) minmax(100px, 2fr) minmax(100px, 2fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.records-difference span { min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.records-difference-header { color: var(--text-soft); font-size: 12px; }
+.records-restore { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 92px; min-height: 36px; white-space: nowrap; }
+.records-restore svg { width: 16px; height: 16px; flex-shrink: 0; }
+.records-empty { text-align: left; color: var(--text-soft); padding: 32px 12px !important; }
+.records-pagination { display: flex; justify-content: center; padding: 20px 0; }
+@media (max-width: 768px) {
+    .records-toolbar select { width: 100%; }
+    .records-table { min-width: 760px; }
+    .records-tabs button { padding: 12px 8px; }
+}

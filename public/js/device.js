@@ -1,5 +1,6 @@
 import { db, storage } from "./firebase-config.js?v=20260928-viewer2";
 import { createAgentHealthNotice, updateDeviceStatus } from "./agent-health.js";
+import { changeDevice } from "./switch/device-store.js";
 import {
     canEditDevices,
     requireInventoryAccess
@@ -8,12 +9,10 @@ import {
 import {
     doc,
     getDoc,
-    onSnapshot,
-    updateDoc
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 import {
-    deleteObject,
     getBlob,
     ref,
     uploadBytes
@@ -33,6 +32,11 @@ if (!id || id.includes("/") || id.length > 200) {
 const deviceRef = doc(db, "switches", id);
 document.getElementById("deviceHistoryLink").href =
     "/pages/monitoring.html?tab=history&device=" + encodeURIComponent(id);
+if (allowEditing) {
+    const changesLink = document.getElementById("deviceChangesLink");
+    changesLink.href = "/pages/device-records.html?device=" + encodeURIComponent(id);
+    changesLink.hidden = false;
+}
 const publicSnapshot = await getDoc(deviceRef);
 
 if (!publicSnapshot.exists()) {
@@ -215,25 +219,8 @@ for (const storedPath of galleryImages) {
             return;
         }
 
-        const updatedGallery = galleryImages.filter((item) => item !== storedPath);
-        const newMainImage = data.mainImage === storedPath
-            ? (updatedGallery[0] || "")
-            : (data.mainImage || "");
-
         try {
-            await updateDoc(deviceRef, {
-                galleryImages: updatedGallery,
-                mainImage: newMainImage
-            });
-
-            try {
-                await deleteObject(ref(storage, storedPath));
-            } catch (storageError) {
-                if (storageError.code !== "storage/object-not-found") {
-                    console.error("Unable to remove stored image:", storageError);
-                }
-            }
-
+            await changeDevice("images", id, { remove: storedPath });
             window.location.reload();
         } catch (error) {
             console.error("Unable to delete image:", error);
@@ -288,29 +275,20 @@ uploadButton.addEventListener("click", async () => {
     const uploadedReferences = [];
 
     try {
-        const updatedGallery = [...galleryImages];
-
         for (const file of files) {
             const imageId = window.crypto.randomUUID();
             const storageReference = ref(storage, `device-images/${id}/${imageId}`);
 
             await uploadBytes(storageReference, file, { contentType: file.type });
             uploadedReferences.push(storageReference);
-            updatedGallery.push(storageReference.fullPath);
         }
 
-        await updateDoc(deviceRef, {
-            mainImage: updatedGallery.at(-1),
-            galleryImages: updatedGallery
-        });
+        await changeDevice("images", id, { add: uploadedReferences.map((reference) => reference.fullPath) });
 
         alert("อัปโหลดรูปสำเร็จ");
         window.location.reload();
     } catch (error) {
         console.error("Unable to upload images:", error);
-        await Promise.allSettled(
-            uploadedReferences.map((storageReference) => deleteObject(storageReference))
-        );
         alert("อัปโหลดรูปไม่สำเร็จ");
     } finally {
         uploadButton.disabled = false;

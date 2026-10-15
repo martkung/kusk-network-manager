@@ -66,8 +66,12 @@ service cloud.firestore {
           'status',
           'lastSeen',
           'mainImage',
-          'galleryImages'
+          'galleryImages',
+          'auditId',
+          'lifecycleId'
         ]) &&
+        optionalString(data, 'auditId', 100) &&
+        optionalString(data, 'lifecycleId', 100) &&
         data.name is string &&
         data.name.size() > 0 &&
         data.name.size() <= 100 &&
@@ -190,6 +194,121 @@ service cloud.firestore {
           request.resource.data.role in ['editor', 'viewer', 'default']));
     }
 
+    // Every browser mutation must create its immutable receipt in the same commit.
+    function freshDeviceAudit(deviceId, eventId, actions) {
+      let path = /databases/$(database)/documents/deviceAudit/$(eventId);
+      let audit = getAfter(path).data;
+      return eventId is string && eventId.matches('^[A-Za-z0-9_-]{1,100}$') &&
+        !exists(path) && audit.deviceId == deviceId && audit.action in actions &&
+        audit.actorUid == request.auth.uid && audit.occurredAt == request.time;
+    }
+
+    function finalDeviceAudit(deviceId) {
+      return getAfter(/databases/$(database)/documents/switches/$(deviceId)).data.auditId;
+    }
+
+    function deletedDeviceAudit(deviceId) {
+      return getAfter(/databases/$(database)/documents/deviceTrash/$(deviceId)).data.auditId;
+    }
+
+    function guestMatchesDevice(deviceId, data) {
+      let device = getAfter(/databases/$(database)/documents/switches/$(deviceId)).data;
+      return validGuestSwitch(data) && data.brand == device.brand &&
+        data.model == device.model && data.status == device.status && data.lastSeen == device.lastSeen;
+    }
+
+    function auditFinalInventory(audit, eventId) {
+      return validPublicSwitch(audit.after) && validPrivateSwitch(audit.privateAfter) &&
+        deviceImagePaths(audit.deviceId, audit.after) &&
+        audit.after.auditId == eventId &&
+        getAfter(/databases/$(database)/documents/switches/$(audit.deviceId)).data == audit.after &&
+        getAfter(/databases/$(database)/documents/switchPrivate/$(audit.deviceId)).data == audit.privateAfter &&
+        guestMatchesDevice(audit.deviceId,
+          getAfter(/databases/$(database)/documents/publicSwitches/$(audit.deviceId)).data);
+    }
+
+    function deviceImagePaths(deviceId, data) {
+      return (!('mainImage' in data) || data.mainImage == '' ||
+          data.mainImage.matches('^device-images/' + deviceId + '/[^/]+$')) &&
+        (!('galleryImages' in data) || data.galleryImages.size() == 0 ||
+          data.galleryImages.join('|').matches('^device-images/' + deviceId + '/[^/|]+([|]device-images/' + deviceId + '/[^/|]+)*$'));
+    }
+
+    function auditOriginalInventory(audit) {
+      return get(/databases/$(database)/documents/switches/$(audit.deviceId)).data == audit.before &&
+        get(/databases/$(database)/documents/switchPrivate/$(audit.deviceId)).data == audit.privateBefore;
+    }
+
+    function auditNewDevice(audit, eventId) {
+      return audit.action == 'create' && audit.before == null && audit.privateBefore == null &&
+        audit.sourceEventId == '' && audit.after.lifecycleId == eventId && audit.after.lastSeen == '' &&
+        !exists(/databases/$(database)/documents/switches/$(audit.deviceId)) &&
+        !exists(/databases/$(database)/documents/switchPrivate/$(audit.deviceId)) &&
+        !exists(/databases/$(database)/documents/deviceTrash/$(audit.deviceId)) &&
+        auditFinalInventory(audit, eventId);
+    }
+
+    function auditEditedDevice(audit, eventId) {
+      return audit.action == 'update' && audit.sourceEventId == '' &&
+        auditOriginalInventory(audit) && auditFinalInventory(audit, eventId) &&
+        audit.after.get('lifecycleId', '') == audit.before.get('lifecycleId', '') &&
+        ((audit.privateAfter.ip == audit.privateBefore.ip && audit.after.status == audit.before.status &&
+            audit.after.lastSeen == audit.before.get('lastSeen', '')) || audit.after.lastSeen == '');
+    }
+
+    function auditDeletedDevice(audit, eventId) {
+      return audit.action == 'delete' && audit.after == null && audit.privateAfter == null &&
+        audit.sourceEventId == '' && audit.reason.size() > 0 && auditOriginalInventory(audit) &&
+        !exists(/databases/$(database)/documents/deviceTrash/$(audit.deviceId)) &&
+        !existsAfter(/databases/$(database)/documents/switches/$(audit.deviceId)) &&
+        !existsAfter(/databases/$(database)/documents/switchPrivate/$(audit.deviceId)) &&
+        !existsAfter(/databases/$(database)/documents/publicSwitches/$(audit.deviceId)) &&
+        getAfter(/databases/$(database)/documents/deviceTrash/$(audit.deviceId)).data == {
+          'deviceId': audit.deviceId, 'device': audit.before, 'privateDevice': audit.privateBefore,
+          'deletedAt': request.time, 'deletedBy': request.auth.uid, 'deletedByEmail': audit.actorEmail,
+          'reason': audit.reason, 'auditId': eventId
+        };
+    }
+
+    function auditRestoredDevice(audit, eventId) {
+      let trash = get(/databases/$(database)/documents/deviceTrash/$(audit.deviceId)).data;
+      return audit.action == 'restore' && canManageUsers() &&
+        audit.before == null && audit.privateBefore == null && audit.sourceEventId == trash.auditId &&
+        !exists(/databases/$(database)/documents/switches/$(audit.deviceId)) &&
+        !exists(/databases/$(database)/documents/switchPrivate/$(audit.deviceId)) &&
+        !existsAfter(/databases/$(database)/documents/deviceTrash/$(audit.deviceId)) &&
+        audit.after.diff(trash.device).affectedKeys().hasOnly(['auditId', 'lifecycleId', 'status', 'lastSeen']) &&
+        audit.after.lifecycleId == eventId && audit.after.status == 'offline' && audit.after.lastSeen == '' &&
+        audit.privateAfter == trash.privateDevice && auditFinalInventory(audit, eventId);
+    }
+
+    match /deviceAudit/{eventId} {
+      allow read: if signedIn() && canEditNetwork();
+      allow create: if signedIn() && canEditNetwork() &&
+        request.resource.data.keys().hasOnly(['deviceId', 'action', 'actorUid', 'actorEmail', 'occurredAt',
+          'reason', 'before', 'after', 'privateBefore', 'privateAfter', 'sourceEventId']) &&
+        request.resource.data.deviceId is string &&
+        request.resource.data.deviceId.matches('^[A-Za-z0-9_-]{1,200}$') &&
+        request.resource.data.actorUid == request.auth.uid &&
+        request.resource.data.actorEmail == request.auth.token.get('email', '') &&
+        request.resource.data.occurredAt == request.time &&
+        request.resource.data.reason is string && request.resource.data.reason.size() <= 200 &&
+        (request.resource.data.action == 'create' ? auditNewDevice(request.resource.data, eventId) :
+          request.resource.data.action == 'update' ? auditEditedDevice(request.resource.data, eventId) :
+          request.resource.data.action == 'delete' ? auditDeletedDevice(request.resource.data, eventId) :
+          request.resource.data.action == 'restore' && auditRestoredDevice(request.resource.data, eventId));
+      allow update, delete: if false;
+    }
+
+    match /deviceTrash/{deviceId} {
+      allow read: if signedIn() && canEditNetwork();
+      allow create: if signedIn() && canEditNetwork() &&
+        freshDeviceAudit(deviceId, request.resource.data.auditId, ['delete']);
+      allow update: if false;
+      allow delete: if signedIn() && canManageUsers() &&
+        freshDeviceAudit(deviceId, finalDeviceAudit(deviceId), ['restore']);
+    }
+
     match /users/{userId} {
       allow get: if signedIn() &&
         (request.auth.uid == userId || canManageUsers());
@@ -210,24 +329,30 @@ service cloud.firestore {
       allow read: if signedIn() && canViewInventory();
       allow create, update: if signedIn() &&
         canEditNetwork() &&
-        validPublicSwitch(request.resource.data);
-      allow delete: if signedIn() && canEditNetwork();
+        validPublicSwitch(request.resource.data) &&
+        freshDeviceAudit(switchId, request.resource.data.auditId, ['create', 'update', 'restore']);
+      allow delete: if signedIn() && canEditNetwork() &&
+        freshDeviceAudit(switchId, deletedDeviceAudit(switchId), ['delete']);
     }
 
     match /publicSwitches/{switchId} {
       allow read: if true;
       allow create, update: if signedIn() &&
         canEditNetwork() &&
-        validGuestSwitch(request.resource.data);
-      allow delete: if signedIn() && canEditNetwork();
+        guestMatchesDevice(switchId, request.resource.data) &&
+        freshDeviceAudit(switchId, finalDeviceAudit(switchId), ['create', 'update', 'restore']);
+      allow delete: if signedIn() && canEditNetwork() &&
+        freshDeviceAudit(switchId, deletedDeviceAudit(switchId), ['delete']);
     }
 
     match /switchPrivate/{switchId} {
       allow read: if signedIn() && canEditNetwork();
       allow create, update: if signedIn() &&
         canEditNetwork() &&
-        validPrivateSwitch(request.resource.data);
-      allow delete: if signedIn() && canEditNetwork();
+        validPrivateSwitch(request.resource.data) &&
+        freshDeviceAudit(switchId, finalDeviceAudit(switchId), ['create', 'update', 'restore']);
+      allow delete: if signedIn() && canEditNetwork() &&
+        freshDeviceAudit(switchId, deletedDeviceAudit(switchId), ['delete']);
     }
 
     match /networkLinks/{linkId} {

@@ -156,3 +156,12 @@ export async function requireInventoryAccess() {
 
     return context;
 }
+
+export async function requireDeviceEditor() {
+    const context = await getCurrentUserContext();
+    if (!canEditDevices(context.role)) {
+        window.location.replace("/home.html");
+        throw new Error("Device management permission required");
+    }
+    return context;
+}

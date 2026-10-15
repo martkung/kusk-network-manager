@@ -246,15 +246,16 @@ async function removeDevice(id) {
         return;
     }
 
-    if (!confirm("ต้องการลบอุปกรณ์นี้ใช่หรือไม่?")) {
+    const reason = prompt("ย้ายอุปกรณ์เข้าถังขยะ\nกรุณาระบุเหตุผลการลบ (ไม่เกิน 200 ตัวอักษร)");
+    if (reason === null) {
         return;
     }
 
     try {
-        await deleteSwitch(id);
+        await deleteSwitch(id, reason);
     } catch (error) {
         console.error("Unable to delete device:", error);
-        alert("ลบอุปกรณ์ไม่สำเร็จ");
+        alert(error.message || "ย้ายเข้าถังขยะไม่สำเร็จ");
     }
 }
 

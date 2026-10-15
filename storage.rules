@@ -36,12 +36,17 @@ service firebase.storage {
     }
 
     match /device-images/{deviceId}/{imageId} {
-      allow read: if signedIn() && canViewInventory();
-      allow create, update: if signedIn() &&
+      allow read: if signedIn() &&
+        ((canViewInventory() && firestore.exists(/databases/(default)/documents/switches/$(deviceId))) ||
+          (canEditNetwork() && firestore.exists(/databases/(default)/documents/deviceTrash/$(deviceId))));
+      allow create: if signedIn() &&
+        resource == null &&
         canEditNetwork() &&
+        firestore.exists(/databases/(default)/documents/switches/$(deviceId)) &&
         request.resource.size <= 10 * 1024 * 1024 &&
         request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
-      allow delete: if signedIn() && canEditNetwork();
+      // Retain originals for audit and recovery; browsers cannot destroy or overwrite them.
+      allow update, delete: if false;
     }
 
     match /{allPaths=**} {
