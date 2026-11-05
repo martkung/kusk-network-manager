@@ -42,3 +42,37 @@
 .agent-health-details {
     font-size: 12px;
 }
+
+.device-status {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+.device-status > .badge {
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.device-status-value {
+    min-width: 64px;
+}
+
+.device-status-last-known.device-status-online {
+    border-color: #15803d;
+    background: #dcfce7;
+    color: #14532d;
+}
+
+.device-status-last-known.device-status-offline {
+    border-color: #b91c1c;
+    background: #fee2e2;
+    color: #7f1d1d;
+}

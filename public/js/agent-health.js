@@ -37,11 +37,26 @@ function formatTime(value) {
 export function updateDeviceStatus(element, status, lastSeen) {
     const stale = isDeviceDataStale(lastSeen);
     const online = status === "online";
-    element.className = "badge " + (stale ? "bg-secondary" :
-        online ? "bg-success" : "bg-danger");
-    element.textContent = (online ? "online" : "offline") +
-        (stale ? " · ข้อมูลเก่า" : "");
-    element.title = "ตรวจล่าสุด: " + formatTime(lastSeen);
+    const value = document.createElement("span");
+    value.className = "badge device-status-value " + (stale
+        ? "device-status-last-known " + (online ? "device-status-online" : "device-status-offline")
+        : online ? "bg-success" : "bg-danger");
+    value.textContent = online ? "online" : "offline";
+    const children = [value];
+    if (stale) {
+        const warning = document.createElement("span");
+        warning.className = "badge bg-warning text-dark";
+        warning.textContent = "ข้อมูลเก่า";
+        children.push(warning);
+    }
+    element.className = "device-status";
+    element.dataset.freshness = stale ? "stale" : "fresh";
+    element.replaceChildren(...children);
+    element.title = "ตรวจล่าสุด: " + formatTime(lastSeen) +
+        (stale ? " · ข้อมูลเก่า ไม่ยืนยันสถานะปัจจุบัน" : "");
+    element.setAttribute("role", "group");
+    element.setAttribute("aria-label", (stale ? "ผลตรวจล่าสุดที่บันทึกไว้: " : "สถานะ: ") +
+        value.textContent + " · " + element.title);
 }
 
 export function createAgentHealthNotice(context) {

@@ -12,9 +12,13 @@ async function fixture(context) {
     hidden = false;
     dataset = {};
     children = [];
-    textContent = "";
-    setAttribute() {}
-    replaceChildren(...children) { this.children = children; }
+    attributes = {};
+    text = "";
+    get textContent() { return this.children.length ? this.children.map((child) => child.textContent).join("") : this.text; }
+    set textContent(value) { this.text = String(value); this.children = []; }
+    setAttribute(name, value) { this.attributes[name] = value; }
+    getAttribute(name) { return this.attributes[name]; }
+    replaceChildren(...children) { this.children = children; this.text = ""; }
   }
   const notice = new Element();
   const timers = new Map();
@@ -123,14 +127,64 @@ test("cached or failed inventory cannot show an authenticated healthy banner", a
   setup.api.stop();
 });
 
-test("stale status badge keeps the last result but loses its current-status color", async () => {
+test("fresh device statuses use green for online and red for offline without a stale warning", async () => {
   const setup = await fixture({ user: null, role: "guest" });
   const badge = new setup.Element();
-  setup.updateStatus(badge, "online", setup.now - states.DEVICE_STALE_MS);
-  assert.equal(badge.className, "badge bg-secondary");
-  assert.match(badge.textContent, /online.*ข้อมูลเก่า/);
+  setup.updateStatus(badge, "online", setup.now);
+  assert.equal(badge.dataset.freshness, "fresh");
+  assert.match(badge.children[0].className, /bg-success/);
+  assert.equal(badge.textContent, "online");
   setup.updateStatus(badge, "offline", setup.now);
-  assert.equal(badge.className, "badge bg-danger");
+  assert.match(badge.children[0].className, /bg-danger/);
+  assert.equal(badge.children.length, 1);
   assert.equal(badge.textContent, "offline");
+  assert.doesNotMatch(badge.title, /ข้อมูลเก่า/);
+  setup.api.stop();
+});
+
+test("stale statuses retain distinct last-known colors alongside a separate amber warning", async () => {
+  const setup = await fixture({ user: null, role: "guest" });
+  const badge = new setup.Element();
+  for (const status of ["online", "offline"]) {
+    setup.updateStatus(badge, status, setup.now - states.DEVICE_STALE_MS);
+    assert.equal(badge.dataset.freshness, "stale");
+    assert.equal(badge.children.length, 2);
+    assert.equal(badge.children[0].textContent, status);
+    assert.match(badge.children[0].className, new RegExp("device-status-" + status));
+    assert.match(badge.children[0].className, /device-status-last-known/);
+    assert.doesNotMatch(badge.children[0].className, /bg-success|bg-danger/);
+    assert.match(badge.children[1].className, /bg-warning/);
+    assert.equal(badge.children[1].textContent, "ข้อมูลเก่า");
+    assert.match(badge.title, /ไม่ยืนยันสถานะปัจจุบัน/);
+    assert.match(badge.getAttribute("aria-label"), /ผลตรวจล่าสุดที่บันทึกไว้/);
+  }
+  setup.api.stop();
+});
+
+test("unknown and future check times never present a last-known result as current", async () => {
+  const setup = await fixture({ user: null, role: "guest" });
+  const badge = new setup.Element();
+  for (const time of [null, undefined, "invalid", setup.now + 120000]) {
+    setup.updateStatus(badge, "online", time);
+    assert.equal(badge.dataset.freshness, "stale");
+    assert.equal(badge.children[1].textContent, "ข้อมูลเก่า");
+    assert.match(badge.getAttribute("aria-label"), /ไม่ยืนยันสถานะปัจจุบัน/);
+  }
+  setup.api.stop();
+});
+
+test("status refresh replaces old badges and clears the stale warning only after a fresh check", async () => {
+  const setup = await fixture({ user: null, role: "guest" });
+  const badge = new setup.Element();
+  setup.updateStatus(badge, "online", setup.now - states.DEVICE_STALE_MS + 1);
+  assert.equal(badge.children.length, 1);
+  setup.updateStatus(badge, "online", setup.now - states.DEVICE_STALE_MS);
+  assert.equal(badge.children.length, 2);
+  setup.updateStatus(badge, "online", setup.now - states.DEVICE_STALE_MS);
+  assert.equal(badge.children.length, 2);
+  setup.updateStatus(badge, "offline", setup.now);
+  assert.equal(badge.children.length, 1);
+  assert.match(badge.children[0].className, /bg-danger/);
+  assert.doesNotMatch(badge.getAttribute("aria-label"), /ข้อมูลเก่า|ผลตรวจล่าสุดที่บันทึกไว้/);
   setup.api.stop();
 });
